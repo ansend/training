@@ -29,5 +29,19 @@ int main(int argc, char *argv[])
 	/* array overflow */
 	y[11] = 0;
 
+	int * c = NULL;
+/*	while(1)
+	{
+          c = malloc(sizeof(int));
+	  sleep(1);
+	}
+	*/
+        int loop=10;
+        for(int i= 0; i< loop; i++)
+	{
+          c = malloc(sizeof(int));
+	  sleep(1);
+	}
+	 
 	return 0;
 }

@@ -10,7 +10,9 @@ int main () {
   int* p = new int (10);
   boost::shared_ptr<int> a (p);
   boost::shared_ptr<int> b (a);
-
+  boost::shared_ptr<int> c;
+  //boost::shared_ptr<int> d   this will cuase error;
+  boost::shared_ptr<int> d((int*)NULL);
   if (a.get()==p)
     std::cout << "a and p point to the same location\n";
 
