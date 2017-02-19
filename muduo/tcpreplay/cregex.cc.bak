@@ -42,20 +42,25 @@ int main(int argc,char** argv)
     EventLoopThread loop_thread;
     EventLoop * loop = loop_thread.startLoop();
 
-    // since in c/c++ compiler  '\' is use for escape charactor, 
-    // so the parrter is firstly compiled during c/c++ compile.
-    // "\\" will firstly compile into \, so  \\d will compiled into \d, 
-    // a pure \, will be \\\\.
+   // char pattern[512]="finance\.sina\.cn|stock1\.sina\.cn|3g\.sina\.com\.cn.*(channel=finance|_finance$|ch=stock|/stock/)|dp.sina.cn/.*ch=9&";
+    char pattern[512]="sina\\.";
+    // since in c/c++ compiler  '\' is use for escape charactor, so the parrter is firstly compiled during c/c++ compile.
+    // "\\" will firstly compile into \, so  \\d will compiled into \d,  a pure \, will be \\\\.
     // there is 2 phase compiler for regex regression.
 
+    //tcp flow header  091.189.090.041.00080-010.000.002.015.47586:
+    // char tcpflow_header[512]="\\d+\\.\\d+\\.\\d+\\.\\d+\\.\\d+-\\d+\\.\\d+\\.\\d+\\.\\d+\\.\\d+:";
     char tcpflow_header[512]="[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+-[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:\\s";
     char conlength[128]="Content-Length:\\s[0-9]\\n\\r";
-    
     char msg[1024];
+
     int n;
   
     size_t leftbyte = 0;
     size_t availbyte = sizeof(msg) - leftbyte;
+
+
+    printf("size of msg is %ld \n", sizeof(msg));
 
     while ( n= fread(msg + leftbyte, 1, availbyte, stdin))
     {
@@ -90,6 +95,7 @@ int main(int argc,char** argv)
     printf("input strings:\n");
     timeval end,start;
     gettimeofday(&start,NULL);
+    regcomp(&reg,pattern,REG_EXTENDED);
     regcomp(&reg_tcpflow,tcpflow_header,REG_EXTENDED);
     regcomp(&reg_con, conlength, REG_EXTENDED);
 

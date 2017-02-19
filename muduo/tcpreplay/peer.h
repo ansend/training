@@ -1,0 +1,62 @@
+#include <muduo/base/Logging.h>
+#include <muduo/net/EventLoop.h>
+#include <muduo/net/TcpClient.h>
+#include <muduo/net/TcpServer.h>
+
+
+#include <regex.h>
+#include <iostream>
+#include <sys/types.h>
+#include <stdio.h>
+#include <cstring>
+#include <sys/time.h>
+#include <string.h>
+#include <vector>
+#include <string>
+#include <map>
+#include <boost/algorithm/string.hpp>  
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <signal.h>
+
+#include <muduo/net/Buffer.h>
+#include <muduo/net/Endian.h>
+#include <muduo/net/InetAddress.h>
+
+#include <stdio.h>
+
+//using namespace muduo;
+using namespace muduo::net;
+
+void clientConnectionCallback(const TcpConnectionPtr& conn);
+
+
+class Peer
+{
+  public:
+  Peer(int fdp, std::string ipp, int portp, EventLoop* loop ):fd(fdp),ip(ipp),port(portp)
+  {
+     //client = new TcpClient(loop,InetAddress(ipp.c_str(), portp), ipp.c_str());
+     client = new TcpClient(loop,InetAddress("127.0.0.1", 8000), ipp.c_str());
+     client->setConnectionCallback(clientConnectionCallback);
+     client->connect();
+  }
+
+  void dump();
+  void set_tcpconn(TcpConnectionPtr conn);
+
+  public:
+  int fd;
+  std::string ip;
+  int port;
+
+
+  TcpClient* client;
+  TcpConnectionPtr tptr;
+  timeval last;
+  
+  Buffer out_buffer; // buffer for out put target sock fd.
+
+  static std::map<std::string,Peer*> peer_map;
+};
+
