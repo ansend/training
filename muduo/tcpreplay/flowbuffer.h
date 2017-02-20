@@ -3,6 +3,8 @@
 #include <string.h>
 #include <assert.h>
 
+#ifndef FLOW_BUFFER_H
+#define FLOW_BUFFER_H
 #define BUF_SIZE 1024*1024
 
 class FlowBuffer
@@ -16,7 +18,7 @@ class FlowBuffer
         writeable = BUF_SIZE; 
     }
 
-    ~FlowBuffer();
+    ~FlowBuffer(){}
 
     size_t readFd(int fd)
     {
@@ -51,3 +53,5 @@ class FlowBuffer
     size_t  writeable;
     size_t  readable;
 };
+
+#endif

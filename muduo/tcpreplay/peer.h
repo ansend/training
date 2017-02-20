@@ -25,6 +25,8 @@
 
 #include <stdio.h>
 
+#ifndef PEER_H
+#define PEER_H
 //using namespace muduo;
 using namespace muduo::net;
 
@@ -60,3 +62,4 @@ class Peer
   static std::map<std::string,Peer*> peer_map;
 };
 
+#endif

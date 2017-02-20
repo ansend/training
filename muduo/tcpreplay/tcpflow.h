@@ -28,8 +28,10 @@ using namespace std;
 using namespace boost;
 using namespace muduo::net;
 
+#ifndef TCP_FLOW_H
+#define TCP_FLOW_H
 
-void dump_peer_map(std::map<std::string, Peer*>& );
+void dump_peer_map(std::map<std::string, Peer*> & pmap);
 
 class TcpFlow
 {
@@ -41,6 +43,7 @@ class TcpFlow
         tcpflow_header = "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+-[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:\\s";
         conlength = "Content-Length:\\s[0-9]\\n\\r";
         nmatch = 1;
+        Init();
   
     }
     ~TcpFlow(){}
@@ -150,6 +153,8 @@ class TcpFlow
 	 	bufptr = bufptr + pm[0].rm_eo;
 
             }//end of while regexe
+
+            dump_peer_map(Peer::peer_map);
                 
         }//end of read buffer
 
@@ -176,14 +181,4 @@ class TcpFlow
 
 };
 
-
-void dump_peer_map(std::map<std::string, Peer*> & pmap)
-{
-   for (std::map<std::string,Peer*>::iterator it=pmap.begin(); it!=pmap.end(); ++it)
-   {  std::cout <<"complete strign"<< it->first << '\n';
-      it->second->dump();
-   }
-    
-}
-
-
+#endif

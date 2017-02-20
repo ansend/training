@@ -1,5 +1,5 @@
-cregex: cregex.o peer.o
-	g++ ./cregex.o ./peer.o  /home/ansen/build/release/lib/libmuduo_net.a /home/ansen/build/release/lib/libmuduo_base.a -lpthread -lstdc++ -o cregex
+cregex: cregex.o peer.o flowbuffer.o tcpflow.o
+	g++ ./cregex.o ./peer.o ./flowbuffer.o ./tcpflow.o -I/home/ansen/muduo /home/ansen/build/release/lib/libmuduo_net.a /home/ansen/build/release/lib/libmuduo_base.a -lpthread -lstdc++ -o cregex
 cregex.o: cregex.cc
 	g++ -g  -I/home/ansen/muduo -c cregex.cc
 peer.o: peer.cc 
