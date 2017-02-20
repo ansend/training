@@ -19,6 +19,8 @@
 #include <arpa/inet.h>
 #include <signal.h>
 
+#include <boost/thread/mutex.hpp>
+
 #include <muduo/net/Buffer.h>
 #include <muduo/net/Endian.h>
 #include <muduo/net/InetAddress.h>
@@ -29,7 +31,7 @@
 #define PEER_H
 //using namespace muduo;
 using namespace muduo::net;
-
+using namespace boost;
 void clientConnectionCallback(const TcpConnectionPtr& conn);
 
 
@@ -45,6 +47,7 @@ class Peer
   }
 
   void dump();
+  void append(const char*, size_t);
   void set_tcpconn(TcpConnectionPtr conn);
 
   public:
@@ -60,6 +63,8 @@ class Peer
   Buffer out_buffer; // buffer for out put target sock fd.
 
   static std::map<std::string,Peer*> peer_map;
+
+  boost::mutex buf_mutex; 
 };
 
 #endif

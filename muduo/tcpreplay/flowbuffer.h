@@ -5,7 +5,7 @@
 
 #ifndef FLOW_BUFFER_H
 #define FLOW_BUFFER_H
-#define BUF_SIZE 1024*1024
+#define BUF_SIZE 1024 * 2
 
 class FlowBuffer
 {
@@ -22,10 +22,14 @@ class FlowBuffer
 
     size_t readFd(int fd)
     {
+        dump();
         size_t n = read(fd, writeinx, writeable);  
+	printf(" this time read %d byte\n ", n);
         writeinx = writeinx + n;
         writeable = writeable -n;
         readable = readable + n;
+	dump();
+	return n;
     }
 
     char * retrieve(const char * src)
@@ -40,11 +44,21 @@ class FlowBuffer
     }
 
     char * retrieve(size_t n);
-
+    size_t get_readable()
+    {
+        return readable;
+    }
     const char * peek()
     {
         return buf;
     }
+
+    void dump()
+    {
+        printf("size is %d\n ", BUF_SIZE);
+	printf("readable is %d\n ", readable);
+	printf("writeable is %d\n", writeable);
+    }   
 
     private:
 

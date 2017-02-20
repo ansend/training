@@ -43,7 +43,10 @@ class TcpFlow
         tcpflow_header = "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+-[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:\\s";
         conlength = "Content-Length:\\s[0-9]\\n\\r";
         nmatch = 1;
-        Init();
+        last_body_begin = NULL;
+        last_body_end = NULL;
+
+       Init();
   
     }
     ~TcpFlow(){}
@@ -51,18 +54,39 @@ class TcpFlow
     
     void StartRun() 
     {
-        while (buf.readFd(0) > 0) 
+        while (1) 
         { 
-
+            //cregex can not assign the length of string to be parsed.
+	    //so it there may be string overflow if it don't match the pattern
+	    //in given string length. how to avoid.
+	    if(buf.readFd(0) <= 0 )
+	    {
+		printf("at end of the buffer\n");
+                break;
+	    }
+	    if (buf.get_readable() < BUF_SIZE)
+	    {
+                printf("the left string  is to short for match , go out\n");
+		break;
+	    }
+            std::string tmp2(buf.peek(), buf.get_readable());
+            printf(" after read fd the buf is %s\n", tmp2.c_str());   
             Peer* curr_peer; // pointer to curring handling peer
             const char * bufptr = buf.peek();
+
+	    printf("********************buf pointer is %p \n ", bufptr);
             int32_t z;
-            while((z= regexec(&reg_tcpflow, bufptr, nmatch, pm, REG_NOTBOL))  != REG_NOMATCH)
-            {
+            while(1) 
+ 	    {
+		z= regexec(&reg_tcpflow, bufptr, nmatch, pm, REG_NOTBOL);
+
                 if(z==REG_NOMATCH)
                 {
                     printf("no matched, exit loop\n");
                     buf.retrieve(bufptr); // retrieve the flow buffer and run match again. 
+		    last_body_begin = last_body_begin - (bufptr - buf.peek());
+
+	     	    // last_body_begin is aslo need to move ahead. 
                     break;
                 }
                 else
@@ -94,12 +118,10 @@ class TcpFlow
                     std::string str_port = str_h.substr(found+1);
                     std::cout << " ip: " << str_h.substr(0,found) << '\n';
                     std::cout << " port: " << str_h.substr(found+1) << '\n'; 
-
                     int n_port = std::atoi( str_port.c_str() );
 		
                     std::map<std::string,Peer*>::iterator itm;
                     itm = Peer::peer_map.find(str_ip);
-
                     if (itm == Peer::peer_map.end())
                     { // no peer ip addr find in existing address book.
 	
@@ -120,17 +142,20 @@ class TcpFlow
 
                         Peer::peer_map.insert(std::pair<std::string, Peer*> (str_ip, p));
 
-                     }else{
+                    }else{
 
                         sockfd = itm->second->fd;
                         curr_peer = itm->second;
-                     }
+                    }
+		 printf(" it's here to begin \n");
 
-		}
-
-                if(NULL != last_body_begin)
-                {
+                 if(NULL != last_body_begin)
+                 {
+                    printf(" last body begin is not null\n");
                     last_body_end = bufptr + pm[0].rm_so;
+		    printf(" current start offset is %d \n ", int(pm[0].rm_so));
+		    printf(" last body begin %p \n", last_body_begin);
+		    printf(" last body end %p \n ", last_body_end);
                     std::string last_body(last_body_begin, last_body_end);
                     //printf("length %d : last message body is %s\n",last_body.size(), last_body.c_str());
 
@@ -142,7 +167,7 @@ class TcpFlow
                     //write(sockfd, last_body.c_str(), last_body.size()); 
                         
                     // save the conent to buffer for following parse the request and filtering function.
-                    curr_peer->out_buffer.append(last_body.c_str(), last_body.size()); 
+                    curr_peer->append(last_body.c_str(), last_body.size()); 
 
                 }else
                 {
@@ -150,7 +175,11 @@ class TcpFlow
                 }
 
                 last_body_begin = bufptr + pm[0].rm_eo;
-	 	bufptr = bufptr + pm[0].rm_eo;
+	 	bufptr = bufptr + pm[0].rm_eo; 
+
+		printf("************ after all the buf ptr is  %p \n ", bufptr);
+
+	     }
 
             }//end of while regexe
 
@@ -159,7 +188,7 @@ class TcpFlow
         }//end of read buffer
 
  
-     }
+    }
      
     private:
 

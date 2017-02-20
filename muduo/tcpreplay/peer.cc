@@ -7,6 +7,12 @@ void Peer::set_tcpconn(TcpConnectionPtr conn)
      tptr = conn;
 }
 
+void Peer::append(const char* target, size_t n)
+{
+    boost::mutex::scoped_lock lock(buf_mutex);
+    out_buffer.append(target, n);
+}
+
 void Peer::dump()
 {
     printf("peer fd is %d \n", fd);
@@ -26,7 +32,8 @@ void Peer::dump()
     int z ;
     const char * req_begin = NULL;
 
-   
+    boost::mutex::scoped_lock lock(buf_mutex);
+
     const char * peek =  out_buffer.peek(); 
 
     while((z= regexec(&reg_req, peek, reqmatch, reqm, REG_NOTBOL))  != REG_NOMATCH)
@@ -47,13 +54,15 @@ void Peer::dump()
               //write(fd, req_begin, peek+reqm[0].rm_so-req_begin);
               if(!tptr )
               printf("conn is empty\n");
+	      else
               tptr->send(req_begin, peek+reqm[0].rm_so-req_begin);
               //write(fd, tmp1.c_str(), tmp1.size());
 
               std::string tmp (req_begin, peek+reqm[0].rm_so-req_begin);
               printf("ansendong ansen  matched string is %s\n", tmp.c_str());
-          
+              
               out_buffer.retrieveUntil(peek+reqm[0].rm_so);
+	      printf("has we lock heere\n ");
               
            }
            req_begin = peek+reqm[0].rm_so;
@@ -63,8 +72,6 @@ void Peer::dump()
            std::string tmp2(out_buffer.peek(), out_buffer.peek()+ out_buffer.readableBytes());
            printf("peer's out buffer size is %d \n ", out_buffer.readableBytes());
            //printf("peer 's output buffer is %s \n", tmp2.c_str());
-
-
        } 
 
     }
