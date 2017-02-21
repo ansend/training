@@ -1,10 +1,9 @@
-
 CPP=g++
 LIB_FLAG= -lboost_system
-
+LD_FLAGS= -Wl,--gc-sections,-rpath,../bin
 
 cregex: cregex.o peer.o flowbuffer.o tcpflow.o
-	g++ ./cregex.o ./peer.o ./flowbuffer.o ./tcpflow.o -I/home/ansen/muduo /home/ansen/build/release/lib/libmuduo_net.a /home/ansen/build/release/lib/libmuduo_base.a $(LIB_FLAG) -lpthread -lstdc++ -o cregex
+	g++ ./cregex.o ./peer.o ./flowbuffer.o ./tcpflow.o -I/home/ansen/muduo /home/ansen/build/release/lib/libmuduo_net.a /home/ansen/build/release/lib/libmuduo_base.a $(LD_FLAGS) $(LIB_FLAG) -lpthread -lstdc++ -o cregex
 cregex.o: cregex.cc
 	g++ -g  -I/home/ansen/muduo -c cregex.cc
 peer.o: peer.cc 
