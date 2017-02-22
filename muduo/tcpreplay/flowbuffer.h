@@ -22,18 +22,19 @@ class FlowBuffer
 
     size_t readFd(int fd)
     {
-        dump();
+        //dump();
         size_t n = read(fd, writeinx, writeable);  
 	printf(" this time read %d byte\n ", n);
         writeinx = writeinx + n;
         writeable = writeable -n;
         readable = readable + n;
-	dump();
+	//dump();
 	return n;
     }
 
     char * retrieve(const char * src)
-    {       
+    {      
+        assert(writeinx >= src); // make sure the src is valid.
         readable = writeinx - src;
         writeinx = buf + readable;
         writeable = buf + BUF_SIZE - writeinx;

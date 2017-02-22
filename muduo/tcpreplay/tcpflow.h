@@ -64,11 +64,21 @@ class TcpFlow
 		printf("at end of the buffer\n");
                 break;
 	    }
+            //only the buffer is almost full, equal or more than BUF_SIZE -8
+            //then start the parse 
+            while (buf.get_readable() < BUF_SIZE - 8)
+            {
+                buf.readFd(0);
+                printf("the left string  is to short for match , go out\n");
+            //.if (buf.get_readable() >= 4090)
+            //  break;
+            }
+            /*
 	    if (buf.get_readable() < BUF_SIZE)
 	    {
                 printf("the left string  is to short for match , go out\n");
 		break;
-	    }
+	    } */
             std::string tmp2(buf.peek(), buf.get_readable());
             printf(" after read fd the buf is %s\n", tmp2.c_str());   
             Peer* curr_peer; // pointer to curring handling peer
