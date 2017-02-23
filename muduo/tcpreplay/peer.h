@@ -20,6 +20,7 @@
 #include <signal.h>
 
 #include <boost/thread/mutex.hpp>
+#include <boost/bind.hpp>
 
 #include <muduo/net/Buffer.h>
 #include <muduo/net/Endian.h>
@@ -34,7 +35,7 @@
 //using namespace muduo;
 using namespace muduo::net;
 using namespace boost;
-void clientConnectionCallback(const TcpConnectionPtr& conn);
+//void clientConnectionCallback(const TcpConnectionPtr& conn);
 
 
 class Peer
@@ -44,14 +45,32 @@ class Peer
   {
      //client = new TcpClient(loop,InetAddress(ipp.c_str(), portp), ipp.c_str());
      client = new TcpClient(loop,InetAddress("127.0.0.1", 8000), ipp.c_str());
-     client->setConnectionCallback(clientConnectionCallback);
+     //client->setConnectionCallback(clientConnectionCallback);
+     client->setConnectionCallback(boost::bind(&Peer::clientConnectionCallback, this, _1));
+     client->setMessageCallback(boost::bind(&Peer::clientMessageCallback, this, _1, _2, _3));
+     
      client->connect();
+     loop->runEvery(1.0, boost::bind(&TimingWheel::onTimer, &wheel));
   }
+/*
+  void init()
+  {
+     client->setConnectionCallback(boost::bind(&Peer::clientConnectionCallback, this, _1));
+     client->setMessageCallback(boost::bind(&Peer::clientMessageCallback, this, _1, _2, _3));
 
+     client->connect();
+     loop->runEvery(1.0, boost::bind(&TimingWheel::onTimer, &wheel));
+
+  }
+*/
   void dump();
   void append(const char*, size_t);
   void set_tcpconn(TcpConnectionPtr conn);
 
+  void clientConnectionCallback(const TcpConnectionPtr& conn);
+  void clientMessageCallback(const TcpConnectionPtr& conn,
+                             Buffer* buffer,
+                             muduo::Timestamp receiveTime);
   public:
   int fd;
   std::string ip;

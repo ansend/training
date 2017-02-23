@@ -1,4 +1,5 @@
 #include "peer.h"
+#include <boost/bind.hpp>
 
 std::map<std::string,Peer*> Peer::peer_map;
 
@@ -81,7 +82,7 @@ void Peer::dump()
 } 
 
 
-void clientMessageCallback(const TcpConnectionPtr& conn,
+void Peer::clientMessageCallback(const TcpConnectionPtr& conn,
                            Buffer* buffer,
                            muduo::Timestamp receiveTime)
 {
@@ -95,7 +96,7 @@ void clientMessageCallback(const TcpConnectionPtr& conn,
   }
 }
 
-void clientConnectionCallback(const TcpConnectionPtr& conn)
+void Peer::clientConnectionCallback(const TcpConnectionPtr& conn)
 {
    printf("now in the client call back functin \n");
    std::string connname = conn->name();

@@ -29,6 +29,8 @@ class TimingWheel
 
   void start();
 
+  void onTimer();
+
  private:
   void onConnection(const muduo::net::TcpConnectionPtr& conn);
 
@@ -36,7 +38,6 @@ class TimingWheel
                  muduo::net::Buffer* buf,
                  muduo::Timestamp time);
 
-  void onTimer();
 
   void dumpConnectionBuckets() const;
 
