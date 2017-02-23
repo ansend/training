@@ -27,6 +27,8 @@
 
 #include <stdio.h>
 
+#include "timingwheel.h"
+
 #ifndef PEER_H
 #define PEER_H
 //using namespace muduo;
@@ -38,7 +40,7 @@ void clientConnectionCallback(const TcpConnectionPtr& conn);
 class Peer
 {
   public:
-  Peer(int fdp, std::string ipp, int portp, EventLoop* loop ):fd(fdp),ip(ipp),port(portp)
+  Peer(int fdp, std::string ipp, int portp, EventLoop* loop ):fd(fdp),ip(ipp),port(portp),wheel(10)
   {
      //client = new TcpClient(loop,InetAddress(ipp.c_str(), portp), ipp.c_str());
      client = new TcpClient(loop,InetAddress("127.0.0.1", 8000), ipp.c_str());
@@ -65,6 +67,7 @@ class Peer
   static std::map<std::string,Peer*> peer_map;
 
   boost::mutex buf_mutex; 
+  TimingWheel wheel;
 };
 
 #endif
