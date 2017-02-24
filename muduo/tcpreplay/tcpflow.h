@@ -31,7 +31,7 @@ using namespace muduo::net;
 #ifndef TCP_FLOW_H
 #define TCP_FLOW_H
 
-void dump_peer_map(std::map<std::string, Peer*> & pmap);
+void dump_peer_map(std::map<std::string, boost::weak_ptr<Peer> > & pmap);
 
 class TcpFlow
 {
@@ -45,6 +45,8 @@ class TcpFlow
         nmatch = 1;
         last_body_begin = NULL;
         last_body_end = NULL;
+
+	loop->runEvery(0.1, boost::bind(&TimingWheel::onTimer, &Peer::wheel));
 
        Init();
   
@@ -81,7 +83,7 @@ class TcpFlow
 	    } */
             std::string tmp2(buf.peek(), buf.get_readable());
             printf(" after read fd the buf is %s\n", tmp2.c_str());   
-            Peer* curr_peer; // pointer to curring handling peer
+	    boost::shared_ptr<Peer>  curr_peer; // pointer to curring handling peer
             const char * bufptr = buf.peek();
 
 	    printf("********************buf pointer is %p \n ", bufptr);
@@ -130,7 +132,7 @@ class TcpFlow
                     std::cout << " port: " << str_h.substr(found+1) << '\n'; 
                     int n_port = std::atoi( str_port.c_str() );
 		
-                    std::map<std::string,Peer*>::iterator itm;
+                    std::map<std::string, boost::weak_ptr<Peer> >::iterator itm;
                     itm = Peer::peer_map.find(str_ip);
                     if (itm == Peer::peer_map.end())
                     { // no peer ip addr find in existing address book.
@@ -146,16 +148,32 @@ class TcpFlow
 			connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)); */
                         sockfd = 10;
 	
-	                Peer * p = new Peer(sockfd, str_ip, n_port, loop);
-
+	                //Peer * p = new Peer(sockfd, str_ip, n_port, loop);
+                        boost::shared_ptr<Peer> p (new Peer(sockfd, str_ip, n_port, loop));
+                        boost::weak_ptr<Peer> wp (p);
 	                curr_peer = p;
 
-                        Peer::peer_map.insert(std::pair<std::string, Peer*> (str_ip, p));
+                        Peer::peer_map.insert(std::pair<std::string, boost::weak_ptr<Peer> > (str_ip, wp));
+			Peer::wheel.insert(p);
 
                     }else{
 
-                        sockfd = itm->second->fd;
-                        curr_peer = itm->second;
+                        curr_peer = itm->second.lock();
+			//here , the shared pointer maybe timeout and have be released and the  
+			//if it's null renew a shared_pointer to the timing wheel, and save
+			//the weak pointer to the map. 
+			if(!curr_peer) 			
+			{
+                           //firstly remove the map item, then and a new one for the same src ip)
+                           Peer::peer_map.erase(itm);
+
+                           boost::shared_ptr<Peer> p (new Peer(sockfd, str_ip, n_port, loop));
+			   boost::weak_ptr<Peer> wp (p);
+			   curr_peer = p;
+			   Peer::peer_map.insert(std::pair<std::string, boost::weak_ptr<Peer> > (str_ip, wp));
+			   Peer::wheel.insert(p);
+			}
+                        sockfd = curr_peer->fd;
                     }
 		 printf(" it's here to begin \n");
 

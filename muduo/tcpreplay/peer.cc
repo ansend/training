@@ -1,7 +1,24 @@
 #include "peer.h"
 #include <boost/bind.hpp>
 
-std::map<std::string,Peer*> Peer::peer_map;
+std::map<std::string,weak_ptr<Peer> > Peer::peer_map;
+
+TimingWheel Peer::wheel(10);
+
+
+Peer::Peer(int fdp, std::string ipp, int portp, EventLoop* loop ):fd(fdp),ip(ipp),port(portp)
+{
+     //client = new TcpClient(loop,InetAddress(ipp.c_str(), portp), ipp.c_str());
+     client = new TcpClient(loop,InetAddress("127.0.0.1", 8000), ipp.c_str());
+     //client->setConnectionCallback(clientConnectionCallback);
+     client->setConnectionCallback(boost::bind(&Peer::clientConnectionCallback, this, _1));
+     client->setMessageCallback(boost::bind(&Peer::clientMessageCallback, this, _1, _2, _3));
+
+     client->connect();
+     //loop->runEvery(1.0, boost::bind(&TimingWheel::onTimer, &wheel));
+}
+
+
 
 void Peer::set_tcpconn(TcpConnectionPtr conn)
 {
@@ -86,8 +103,24 @@ void Peer::clientMessageCallback(const TcpConnectionPtr& conn,
                            Buffer* buffer,
                            muduo::Timestamp receiveTime)
 {
+
+    std::string connname = conn->name();
+    std::size_t found = connname.find_first_of(":");
+    std::string tname = connname.substr(0,found); 
+    std::map<std::string,weak_ptr<Peer> >::iterator itm;
+    itm = Peer::peer_map.find(tname);
+    printf(" connection name is %s \n", tname.c_str());
+    if (itm != Peer::peer_map.end()){ // no peer ip addr find in existing address book.
+       Peer::wheel.update(itm->second);
+       printf("update the reference of the current weak pointer\n");
+        
+    }else{
+      printf(" no found  map client peer weak pointer \n");
+    }
+  // empty the buffer.
   uint32_t frameLen = 1000;
   int64_t message[2];
+
   while (buffer->readableBytes() >= frameLen)
   {
     memcpy(message, buffer->peek(), frameLen);
@@ -107,12 +140,18 @@ void Peer::clientConnectionCallback(const TcpConnectionPtr& conn)
     //clientConnection = conn;
     //TcpConnectionPtr tmp = conn;
 
-    std::map<std::string,Peer*>::iterator itm;
+    std::map<std::string,weak_ptr<Peer> >::iterator itm;
     itm = Peer::peer_map.find(tname);
     printf(" connection name is %s \n", tname.c_str());
     if (itm != Peer::peer_map.end()){ // no peer ip addr find in existing address book.
-	itm->second->set_tcpconn(conn);
-        printf("ansen found the connection name \n");
+       
+        printf("ansen found the connection name in the weak pointer list \n");
+        boost::shared_ptr<Peer> item (itm->second.lock());
+        if (item)
+        {
+           item->set_tcpconn(conn); 
+           printf(" set the connection pointer to the shared pointer from week pinter\n");
+        }
         
     }else{
       printf("ansen no found  map client name\n");
@@ -124,7 +163,7 @@ void Peer::clientConnectionCallback(const TcpConnectionPtr& conn)
   {
     printf("now close connection\n");
     //clientConnection.reset();
-    std::map<std::string,Peer*>::iterator itm;
+    std::map<std::string,weak_ptr<Peer> >::iterator itm;
     itm = Peer::peer_map.find(tname);
 
     if (itm == Peer::peer_map.end()){ // no peer ip addr find in existing address book.

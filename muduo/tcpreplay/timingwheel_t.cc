@@ -7,28 +7,31 @@
 #include <stdio.h>
 
 
-#include "timingwheel.h"
+#include "timingwheel_t.h"
 
 using namespace muduo;
 using namespace muduo::net;
 
-TimingWheel::TimingWheel(int idleSeconds)
+template <typename TT>
+TimingWheel <TT> ::TimingWheel(int idleSeconds)
   :bucklist_(idleSeconds)
 {
   bucklist_.resize(idleSeconds);
   dumpBuckets();
 }
 
-void TimingWheel::insert(const boost::shared_ptr<Peer>& entry)
+template <typename TT>
+void TimingWheel<TT>::insert(const boost::shared_ptr<TT>& entry)
 {
     bucklist_.back().insert(entry);
    
 }
 
-void TimingWheel::update(const boost::weak_ptr<Peer>& weakentry)
+template <typename TT>
+void TimingWheel<TT>::update(const boost::weak_ptr<TT>& weakentry)
 {
 
-     boost::shared_ptr<Peer> entry(weakentry.lock());
+     boost::shared_ptr<TT> entry(weakentry.lock());
      if (entry)
      {
        bucklist_.back().insert(entry);
@@ -37,24 +40,25 @@ void TimingWheel::update(const boost::weak_ptr<Peer>& weakentry)
 
 }
 
-void TimingWheel::onTimer()
+template <typename TT>
+void TimingWheel<TT>::onTimer()
 {
   bucklist_.push_back(Bucket());
-  printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n");
   dumpBuckets();
 }
 
-void TimingWheel::dumpBuckets() const
+template <typename TT>
+void TimingWheel<TT>::dumpBuckets() const
 {
   LOG_INFO << "size = " << bucklist_.size();
   int idx = 0;
-  for (BucketList::const_iterator bucketI = bucklist_.begin();
+  for (typename TimingWheel<TT>::BucketList::const_iterator bucketI = bucklist_.begin();
       bucketI != bucklist_.end();
       ++bucketI, ++idx)
   {
     const Bucket& bucket = *bucketI;
     printf("[%d] len = %zd : ", idx, bucket.size());
-    for (Bucket::const_iterator it = bucket.begin();
+    for (typename Bucket::const_iterator it = bucket.begin();
         it != bucket.end();
         ++it)
     {/*

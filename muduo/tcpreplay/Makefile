@@ -14,5 +14,8 @@ tcpflow.o : tcpflow.cc tcpflow.h
 	g++ -g -I/home/ansen/muduo -c tcpflow.cc
 timingwheel.o : timingwheel.cc timingwheel.h
 	g++ -g -I/home/ansen/muduo -c timingwheel.cc
+
+timingwheel_t.o : timingwheel_t.cc timingwheel_t.h
+	g++ -g -I/home/ansen/muduo -c timingwheel_t.cc
 clean:
 	rm *.o ; rm cregex

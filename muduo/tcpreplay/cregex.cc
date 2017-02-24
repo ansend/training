@@ -33,10 +33,10 @@ using namespace muduo::net;
 #include "tcpflow.h"
 
 const char * usage= "targetIp targetPort [timeout] [packetfilterpattern] \n \
-targetIp    : the target address will forward to. \
-targetPort  : the target port will forward to . \ 
-timeout     : the idle connection timeout in second unit . \
-packetfilterpattern: packet filter pattern is a perl regular expression\
+targetIp    : the target address will forward to. \n \
+targetPort  : the target port will forward to . \n \ 
+timeout     : the idle connection timeout in second unit . \n \
+packetfilterpattern: packet filter pattern is a perl regular expression\n \
                      will filter each packet";
 
 struct  ArgCxt

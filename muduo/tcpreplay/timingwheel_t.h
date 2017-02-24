@@ -23,6 +23,7 @@ namespace boost
 }
 #endif
 
+template <typename  TT>
 class TimingWheel
 {
  public:
@@ -32,18 +33,18 @@ class TimingWheel
 
   void onTimer();
 
-  void insert(const boost::shared_ptr<Peer>& ptr);
+ private:
+  void insert(const boost::shared_ptr<TT>& ptr);
 
-  void update(const boost::weak_ptr<Peer>& ptr);
+  void update(const boost::weak_ptr<TT>& ptr);
 
   void dumpBuckets() const;
 
 
-  private:
-  typedef boost::shared_ptr<Peer> SharePtr;
-  typedef boost::weak_ptr<Peer> WeakPtr;
-  typedef boost::unordered_set<SharePtr> Bucket;
-  typedef boost::circular_buffer<Bucket> BucketList;
+  typedef typename boost::shared_ptr<TT> SharePtr;
+  typedef typename boost::weak_ptr<TT> WeakPtr;
+  typedef typename boost::unordered_set<SharePtr> Bucket;
+  typedef typename boost::circular_buffer<Bucket> BucketList;
   
 
   BucketList bucklist_;

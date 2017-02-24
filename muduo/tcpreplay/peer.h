@@ -37,21 +37,11 @@ using namespace muduo::net;
 using namespace boost;
 //void clientConnectionCallback(const TcpConnectionPtr& conn);
 
-
+class TimingWheel;
 class Peer
 {
   public:
-  Peer(int fdp, std::string ipp, int portp, EventLoop* loop ):fd(fdp),ip(ipp),port(portp),wheel(10)
-  {
-     //client = new TcpClient(loop,InetAddress(ipp.c_str(), portp), ipp.c_str());
-     client = new TcpClient(loop,InetAddress("127.0.0.1", 8000), ipp.c_str());
-     //client->setConnectionCallback(clientConnectionCallback);
-     client->setConnectionCallback(boost::bind(&Peer::clientConnectionCallback, this, _1));
-     client->setMessageCallback(boost::bind(&Peer::clientMessageCallback, this, _1, _2, _3));
-     
-     client->connect();
-     loop->runEvery(1.0, boost::bind(&TimingWheel::onTimer, &wheel));
-  }
+  Peer(int fdp, std::string ipp, int portp, EventLoop* loop );
 /*
   void init()
   {
@@ -76,6 +66,8 @@ class Peer
   std::string ip;
   int port;
 
+  static std::map<std::string,weak_ptr<Peer> > peer_map;
+  static TimingWheel wheel;
 
   TcpClient* client;
   TcpConnectionPtr tptr;
@@ -83,10 +75,8 @@ class Peer
   
   Buffer out_buffer; // buffer for out put target sock fd.
 
-  static std::map<std::string,Peer*> peer_map;
 
   boost::mutex buf_mutex; 
-  TimingWheel wheel;
 };
 
 #endif
