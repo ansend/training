@@ -54,6 +54,11 @@ class FlowBuffer
         return buf;
     }
 
+    const char * get_writeinx()
+    {
+        return writeinx;
+    }
+
     void dump()
     {
         printf("size is %d\n ", BUF_SIZE);

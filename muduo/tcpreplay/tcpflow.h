@@ -90,6 +90,16 @@ class TcpFlow
             int32_t z;
             while(1) 
  	    {
+
+                if(buf.get_writeinx() - bufptr < 50) // here to prevent the regex overflow
+                {
+                    printf("left string is less then 50 to to prevent overflow, exit loop\n");
+                    buf.retrieve(bufptr); // retrieve the flow buffer and run match again. 
+		    last_body_begin = last_body_begin - (bufptr - buf.peek());
+	     	    // last_body_begin is aslo need to move ahead. 
+                    break;
+                }
+
 		z= regexec(&reg_tcpflow, bufptr, nmatch, pm, REG_NOTBOL);
 
                 if(z==REG_NOMATCH)
