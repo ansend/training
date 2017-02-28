@@ -53,6 +53,7 @@ class Peer
 
   }
 */
+  virtual ~Peer();
   void dump();
   void append(const char*, size_t);
   void set_tcpconn(TcpConnectionPtr conn);

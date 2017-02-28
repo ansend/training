@@ -18,7 +18,11 @@ Peer::Peer(int fdp, std::string ipp, int portp, EventLoop* loop ):fd(fdp),ip(ipp
      //loop->runEvery(1.0, boost::bind(&TimingWheel::onTimer, &wheel));
 }
 
-
+Peer::~Peer()
+{
+    //client-> disconnect(); //call this will cause bad file discriber, should be a bug in muduo.
+    delete client;
+}
 
 void Peer::set_tcpconn(TcpConnectionPtr conn)
 {
