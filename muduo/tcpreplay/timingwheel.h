@@ -47,6 +47,7 @@ class TimingWheel
   
 
   BucketList bucklist_;
+  boost::mutex wheel_mutex;
 };
 
 #endif

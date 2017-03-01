@@ -9,20 +9,29 @@ TimingWheel Peer::wheel(10);
 Peer::Peer(int fdp, std::string ipp, int portp, EventLoop* loop ):fd(fdp),ip(ipp),port(portp)
 {
      //client = new TcpClient(loop,InetAddress(ipp.c_str(), portp), ipp.c_str());
-     client = new TcpClient(loop,InetAddress("127.0.0.1", 8000), ipp.c_str());
+     client = new TcpClient(loop,InetAddress("127.0.0.1", 2007), ipp.c_str());
      //client->setConnectionCallback(clientConnectionCallback);
      client->setConnectionCallback(boost::bind(&Peer::clientConnectionCallback, this, _1));
      client->setMessageCallback(boost::bind(&Peer::clientMessageCallback, this, _1, _2, _3));
 
+         printf("here in peers custructor we call  client connection \n");
      client->connect();
-     //loop->runEvery(1.0, boost::bind(&TimingWheel::onTimer, &wheel));
+     //loop->runEvery(10, boost::bind(&TimingWheel::onTimer, &wheel));
+           
+         req_pattern = "GET\\s|POST\\s|DELETE\\s";
+         reqmatch = 1;
+         regcomp(&reg_req, req_pattern, REG_EXTENDED);
 }
 
 Peer::~Peer()
 {
-    //client-> disconnect(); //call this will cause bad file discriber, should be a bug in muduo.
-    delete client;
+     client->disconnect();
+         printf("descurtor peer\n");
+         delete client;
+         regfree (&reg_req);
+
 }
+
 
 void Peer::set_tcpconn(TcpConnectionPtr conn)
 {
@@ -37,20 +46,18 @@ void Peer::append(const char* target, size_t n)
 
 void Peer::dump()
 {
-    printf("peer fd is %d \n", fd);
-    printf("peer ip is %s \n", ip.c_str());
-    printf("peer port is %d \n", port);
+    //printf("peer fd is %d  peer ip is %s, peer port is %d\n", fd, ip.c_str(), port);
     std::string tmp(out_buffer.peek(), out_buffer.peek()+ out_buffer.readableBytes());
-    //printf("peer's out buffer size if %d \n ", out_buffer.readableBytes());
+    printf("peer's out buffer inernal capacity is ############## %d \n ", out_buffer.internalCapacity());
     //printf("peer 's output buffer is %s \n", tmp.c_str());
 
     
     //char req_pattern[124] = "GET\\s|POST\\s";
-    char req_pattern[124] = "GET\\s|POST\\s|DELETE\\s";
+    /*char req_pattern[124] = "GET\\s|POST\\s|DELETE\\s";
     const size_t reqmatch = 1;
     regmatch_t reqm[1];
     regex_t reg_req;
-    regcomp(&reg_req, req_pattern, REG_EXTENDED);
+    regcomp(&reg_req, req_pattern, REG_EXTENDED); */
     int z ;
     const char * req_begin = NULL;
 
@@ -60,31 +67,35 @@ void Peer::dump()
 
     while((z= regexec(&reg_req, peek, reqmatch, reqm, REG_NOTBOL))  != REG_NOMATCH)
     {
-       if(out_buffer.readableBytes() < 2000) // left some bytes since there may no request line in the buffer.
+      if(out_buffer.readableBytes() < 2000) // left some bytes since there may no request line in the buffer.
        { 
-           printf("at the end of the buffer\n");
+           //printf("at the end of the buffer go out of the buffer \n");
            break;
        }   
        else
        {
-           printf("%d match found \n", reqmatch);
+           if( peek + reqm[0].rm_so > out_buffer.beginWrite()) // regex cause the buffer overflow,ignore
+           {
+              printf("buffer regex overflow occurs, go out \n");
+                      break;
+               }
+          // printf("%d match found \n", reqmatch);
            
            std::string tmp1 (peek+reqm[0].rm_so, peek+reqm[0].rm_eo);
-           printf("matched request is %s", tmp1.c_str());
+           //printf(" ansendong matched request is %s", tmp1.c_str());
            if(req_begin != NULL)
            {
               //write(fd, req_begin, peek+reqm[0].rm_so-req_begin);
               if(!tptr )
               printf("conn is empty\n");
-	      else
+                  else
               tptr->send(req_begin, peek+reqm[0].rm_so-req_begin);
               //write(fd, tmp1.c_str(), tmp1.size());
 
               std::string tmp (req_begin, peek+reqm[0].rm_so-req_begin);
-              printf("ansendong ansen  matched string is %s\n", tmp.c_str());
+             // printf("ansendong ansen  matched request is %s\n", tmp.c_str());
               
               out_buffer.retrieveUntil(peek+reqm[0].rm_so);
-	      printf("has we lock heere\n ");
               
            }
            req_begin = peek+reqm[0].rm_so;
@@ -92,13 +103,12 @@ void Peer::dump()
            peek = peek + reqm[0].rm_eo;
 
            std::string tmp2(out_buffer.peek(), out_buffer.peek()+ out_buffer.readableBytes());
-           printf("peer's out buffer size is %d \n ", out_buffer.readableBytes());
+           //printf("peer's out buffer size is %d \n ", out_buffer.readableBytes());
            //printf("peer 's output buffer is %s \n", tmp2.c_str());
        } 
 
     }
 
-    printf(" go out of the loop\n");
 
 } 
 
@@ -115,8 +125,9 @@ void Peer::clientMessageCallback(const TcpConnectionPtr& conn,
     itm = Peer::peer_map.find(tname);
     printf(" connection name is %s \n", tname.c_str());
     if (itm != Peer::peer_map.end()){ // no peer ip addr find in existing address book.
-       Peer::wheel.update(itm->second);
-       printf("update the reference of the current weak pointer\n");
+       
+       //Peer::wheel.update(itm->second);
+      // printf("update the reference of the current weak pointer\n");
         
     }else{
       printf(" no found  map client peer weak pointer \n");
@@ -125,10 +136,12 @@ void Peer::clientMessageCallback(const TcpConnectionPtr& conn,
   uint32_t frameLen = 1000;
   int64_t message[2];
 
-  while (buffer->readableBytes() >= frameLen)
+  while (buffer->readableBytes() > frameLen)
   {
-    memcpy(message, buffer->peek(), frameLen);
+    printf("before read in bufer %lu\n", buffer->readableBytes());
+    //memcpy(message, buffer->peek(), frameLen);
     buffer->retrieve(frameLen);
+    printf("after read in bufer %lu\n", buffer->internalCapacity());
 
   }
 }
@@ -166,14 +179,19 @@ void Peer::clientConnectionCallback(const TcpConnectionPtr& conn)
   else
   {
     printf("now close connection\n");
-    //clientConnection.reset();
-    std::map<std::string,weak_ptr<Peer> >::iterator itm;
-    itm = Peer::peer_map.find(tname);
 
-    if (itm == Peer::peer_map.end()){ // no peer ip addr find in existing address book.
-	//itm->second->tptr->reset();
-        Peer::peer_map.erase(itm);
-    }
+        //here no need the remove the weak_ptr in the peer map.
+        //the tcpflow thread will detected the weak pointer is null
+        //and remove the connection.
+
+    //clientConnection.reset();
+   // std::map<std::string,weak_ptr<Peer> >::iterator itm;
+    //itm = Peer::peer_map.find(tname);
+
+    //if (itm == Peer::peer_map.end()){ // no peer ip addr find in existing address book.
+        //itm->second->tptr->reset();
+     //   Peer::peer_map.erase(itm);
+    // }
 
   }
 }

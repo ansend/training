@@ -21,27 +21,30 @@ TimingWheel::TimingWheel(int idleSeconds)
 
 void TimingWheel::insert(const boost::shared_ptr<Peer>& entry)
 {
+        boost::mutex::scoped_lock lock(wheel_mutex);
     bucklist_.back().insert(entry);
    
 }
 
 void TimingWheel::update(const boost::weak_ptr<Peer>& weakentry)
 {
+         boost::mutex::scoped_lock lock(wheel_mutex);
 
      boost::shared_ptr<Peer> entry(weakentry.lock());
      if (entry)
      {
        bucklist_.back().insert(entry);
-       dumpBuckets();
+       //dumpBuckets();
      }
 
 }
 
 void TimingWheel::onTimer()
 {
+  boost::mutex::scoped_lock lock(wheel_mutex);
   bucklist_.push_back(Bucket());
   printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n");
-  dumpBuckets();
+  //dumpBuckets();
 }
 
 void TimingWheel::dumpBuckets() const
@@ -61,10 +64,8 @@ void TimingWheel::dumpBuckets() const
       bool connectionDead = (*it)->weakConn_.expired();
       printf("%p(%ld)%s, ", get_pointer(*it), it->use_count(),
           connectionDead ? " DEAD" : "");
-		  */
+                  */
     }
     puts("");
   }
 }
-
-

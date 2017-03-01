@@ -13,6 +13,8 @@
 #include <arpa/inet.h>
 #include <signal.h>
 
+#include <fcntl.h>
+
 #include <muduo/net/Buffer.h>
 #include <muduo/net/Endian.h>
 #include <muduo/net/EventLoop.h>
@@ -23,6 +25,14 @@
 
 #include "peer.h"
 #include "flowbuffer.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <stdint.h>
+#include <errno.h>
+#include <signal.h>
 
 using namespace std;
 using namespace boost;
@@ -46,7 +56,7 @@ class TcpFlow
         last_body_begin = NULL;
         last_body_end = NULL;
 
-        loop->runEvery(0.1, boost::bind(&TimingWheel::onTimer, &Peer::wheel));
+            //loop->runEvery(5.0, boost::bind(&TimingWheel::onTimer, &Peer::wheel));
 
        Init();
   
@@ -56,14 +66,46 @@ class TcpFlow
     
     void StartRun() 
     {
+
+        struct sockaddr_in servaddr;
+        int ncfd, n;
+
+        ncfd = socket(AF_INET, SOCK_STREAM, 0);
+
+        bzero(&servaddr, sizeof(servaddr));
+        servaddr.sin_family = AF_INET;
+        inet_pton(AF_INET, "221.228.91.252", &servaddr.sin_addr);
+        servaddr.sin_port = htons(8890);
+
+        uint16_t retry = 0;
+        
+        while(connect(ncfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+        {
+            retry ++;
+            if(retry == 3)
+            {
+                printf("can not connect to host and exit\n");
+                printf("%s\n", strerror(errno));
+                exit(1);
+            }
+        }
+
+                int tfd = open("./testlog", O_RDWR);
+            if (tfd == -1)
+                {
+                perror("open file testlog");
+                close(tfd);
+                    return ;
+            }
+
         while (1) 
         { 
             //cregex can not assign the length of string to be parsed.
             //so it there may be string overflow if it don't match the pattern
             //in given string length. how to avoid.
-            if(buf.readFd(0) <= 0 )
+            if(buf.readFd(ncfd) <= 0 )
             {
-        //      printf("at end of the buffer\n");
+                printf("at end of the buffer\n");
         //      printf(" the byets inf buffer %lu \n", buf.get_readable());
                 break;
             }
@@ -71,8 +113,8 @@ class TcpFlow
             //then start the parse 
             while (buf.get_readable() < BUF_SIZE - 8)
             {
-                buf.readFd(0);
-                //printf("the left string  is to short for match , go out\n");
+                buf.readFd(ncfd);
+                printf("the left string  is to short for match , go out\n");
             //.if (buf.get_readable() >= 4090)
             //  break;
             }
@@ -196,6 +238,7 @@ class TcpFlow
                                    boost::weak_ptr<Peer> wp (p);
                                    curr_peer = p;
                                    Peer::peer_map.insert(std::pair<std::string, boost::weak_ptr<Peer> > (last_ip, wp));
+
                                    Peer::wheel.insert(p);
                                 }
 
