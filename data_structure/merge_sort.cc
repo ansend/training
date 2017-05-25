@@ -3,47 +3,79 @@
 #include <stdint.h>
 
 
-void Merge(int *a, int p, int q, int r)  
+void Merge(int *a, int left, int mid, int right)  
 {  
-      int n1 = q-p+1;  
-     int n2 = r-q;  
+      int n1 = mid-left+1;  
+     int n2 = right-mid;  
      int *L = new int[n1+1];  
      int *R = new int[n2+1];  
      int i, j, k;  
        
      for (i=0; i<n1; i++){  
-         L[i] = a[p+i];  
+         L[i] = a[left+i];  
      }  
      for (j=0; j<n2; j++){  
-         R[j] = a[q+j+1];  
+         R[j] = a[mid+j+1];  
      }  
-     L[n1] = 10000000;  
-     R[n2] = 10000000;  
-   
-     for (i=0, j=0, k=p; k<=r; k++)  
+     //L[n1] = 0x7fffffff;  
+     //R[n2] = 0x7fffffff;  
+  /* 
+     for (i=0, j=0, k=left; k<=right; k++)  
      {  
          if (L[i]<=R[j])  
          {  
              a[k] = L[i];  
-             i++;  
+             i++;
+	     if(i == n1)
+	      break;
          }else{  
              a[k] = R[j];  
              j++;  
+	     if(j == n2)
+	     break;
          }  
-     }  
-   
+     } 
+   */  
+    i = 0;
+    j = 0;
+    k = left;
+  
+    while(k <= right)
+    {
+       if(i == n1)
+       {
+          a[k++] = R[j++];
+	  continue;
+       }
+     
+       if(j == n2)
+       {
+         a[k++]= L[i++];
+	 continue;
+       }
+
+       if(L[i] <= R[j])
+       {
+          a[k++] = L[i++];
+       }else{
+
+          a[k++] = R[j++];
+       }
+
+    }
+
      delete []L;  
      delete []R;  
  }  
    
- void MergeSort1(int *a, int p, int r)  
+ void MergeSort1(int *a, int left, int right)  
  {  
-     if (p<r)  
+     if (left<right)  
      {  
-         int q = (p+r)/2;  
-         MergeSort1(a, p, q);  
-         MergeSort1(a, q+1, r);  
-         Merge(a, p, q, r);  
+         int mid = (left+right)/2;  
+         MergeSort1(a, left, mid);  
+         MergeSort1(a, mid+1, right);  
+         Merge(a, left, mid, right);  
      }  
  }
 
