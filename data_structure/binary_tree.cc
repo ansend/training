@@ -52,6 +52,23 @@ bi_tree_node *  btree_find(struct bi_tree_node * tree, int value)
 
 }
 
+
+
+
+bi_tree_node * find_min_sub_tree(struct bi_tree_node * root, int left, int right)
+{
+   if(root == NULL) // normal should not be here.
+     return NULL;
+   if(left < root->value && right < root->value)
+
+     return find_min_sub_tree(root->left, left, right);
+   else if(left > root->value && right > root->value)
+    return find_min_sub_tree(root->right, left, right);
+
+   else
+    return root;
+}
+
 int main(int argc, char ** argv)
 {
     
