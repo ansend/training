@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
-
+#include <stdlib.h>
 
 struct bi_tree_node{
 
@@ -39,11 +39,42 @@ bool is_sub_tree(struct bi_tree_node * ptree, struct bi_tree_node * stree)
 
 }
 
-bool btree_find(struct bi_tree_node * tree, int value)
+bi_tree_node *  btree_find(struct bi_tree_node * tree, int value)
 {
-
-   
-
+   if(tree == NULL)
+      return NULL;
+   if(tree->value == value)
+       return tree;
+   else if(value < tree->value)
+       return btree_find(tree->left, value);
+    else
+       return btree_find(tree->right, value);
 
 }
+
+int main(int argc, char ** argv)
+{
+    
+    bi_tree_node * root = create_bnode(5);
+    bi_tree_node * left = create_bnode(3);
+    root->left = left;
+
+    bi_tree_node * right = create_bnode(8);
+    root->right = right;
+
+    bi_tree_node * subtree = create_bnode(3);
+   
+    bi_tree_node * target = btree_find(root, 3);
+
+    
+    bool find = is_sub_tree(target, subtree);
+
+    if(find)
+     printf("the target is subtree of root\n");
+     else
+     printf("the target is not subtree of root\n");
+
+}
+
+
 
