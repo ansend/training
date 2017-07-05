@@ -53,6 +53,8 @@ class Peer
 
   }
 */
+
+ virtual  ~Peer();
   void dump();
   void append(const char*, size_t);
   void set_tcpconn(TcpConnectionPtr conn);
@@ -75,8 +77,16 @@ class Peer
   
   Buffer out_buffer; // buffer for out put target sock fd.
 
-
   boost::mutex buf_mutex; 
+
+    
+  //char req_pattern[124] = "GET\\s|POST\\s";
+  char * req_pattern ;
+  size_t reqmatch ;
+  regmatch_t reqm[1];
+  regex_t reg_req;
+
+
 };
 
 #endif
