@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <stdlib.h>  // not include this , complition can pass, but run failed. why?
 
 typedef struct {
 	long mtype;
@@ -17,6 +18,9 @@ int creat_msg_queue()
         struct msqid_ds buffer;
 
         proj_id=2;
+	char * home = getenv("HOME");
+	printf("the home env is null %s\n", home);
+	//printf("current env HOME: %s \n", getenv("HOME"));
         key=ftok(getenv("HOME"),proj_id);
         if(key==-1){
                 perror("cannot generate the IPC key");
