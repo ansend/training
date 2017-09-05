@@ -14,7 +14,10 @@ echo '$SHELL'
 echo "$SHELL"
 echo '$SHELL
 	  hello world'
-#双引号用于保持引号内所有字符的字面值（回车也不例外），除以下情况外：
+
+	  
+	  
+ #双引号用于保持引号内所有字符的字面值（回车也不例外），除以下情况外：
 #$加变量名可以取变量的值
 #反引号仍表示命令替换
 #\$表示$的字面值
@@ -25,6 +28,16 @@ echo "$SHELL
 	  hello world"
 echo "\$SHELL
 	  hello world"
+
+
+
+#$VAR   加引号的变量值,比如 "$VAR" 会引用变量$VAR的值，即使变量的值包含非可见的，换行， tab, 回车等等。
+#如果不加引号的时候， echo 的时候会省略变量中的换行，tab，和回车等非可见字符。
+
+$var=$'\t'
+echo -n $var          #不输出\t      
+echo -n "$var"        #输出\t 
+
 
 #命令test或[可以测试一个条件是否成立，如果测试结果为真，则该命令的Exit Status为0，如果测试结果为假，则命令的Exit Status为1
 VAR=2
