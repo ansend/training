@@ -35,4 +35,26 @@ for (( a=1, b=10; a<=10; a++, b-- ))
 do  
     ((c=a*b))  
     echo $c  
-done  
+done 
+
+
+list="server1 server2 server3 server4 server5"
+# here  equal to for i in server1 server2 server3 server4 server5
+for i in $list
+do
+	echo $i
+done
+
+#all the character in quote mark are treated as a single varable.
+for i in "server1 server2 server3 server4 server5"
+do
+	echo $i
+done
+
+
+#all the character in quote mark are treated as a single varable.
+for i in server1 server2 server3 server4 server5
+do
+	echo $i
+done
+
