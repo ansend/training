@@ -1,6 +1,12 @@
 #! /bin/bash
 
+echo "PID of this script: $$"
+
+#exec  
+#exec  1> tmplog
 # number operation
+
+echo "child PID of this script: $$"
 counter=10
 echo $counter   
 ((counter=counter+2))   
