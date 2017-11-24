@@ -26,13 +26,13 @@ bool test_bm(uint32_t bit)
 
 void clean_bm(uint32_t bit)
 {
-   bitmap[bit >> SHIFT] &= uint8_t(1 << (bit & MOD_MASK));
+   bitmap[bit >> SHIFT] &= ~uint8_t(1 << (bit & MOD_MASK));
 }
 
 
 int main (int argc, char ** argv)
 {
-
+        
 	printf("max len is %lu \n", MAX_SIZE);
         int array1[255] = {0};
 	int array2[255] = {0};
