@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "cos_buffer.h"
+#include "FileBuffer.h"
 
 using namespace std;
 

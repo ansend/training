@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <sys/uio.h>
 
-#include "cos_buffer.h"
+#include "FileBuffer.h"
 
 const char Buffer::kCRLF[] = "\r\n";
 

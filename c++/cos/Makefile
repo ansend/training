@@ -1,11 +1,11 @@
-cos_buffer.o : cos_buffer.h cos_buffer.cpp
-	g++ -c cos_buffer.cpp
-file_sys.o : file_sys.cpp file_sys.h cos_buffer.h
-	g++ -c file_sys.cpp
-cos_sys.o: cos_sys.cpp cos_sys.h CommandHandler.h
-	g++ -c cos_sys.cpp
-cos : cos_buffer.o file_sys.o 
-	g++ cos_buffer.o file_sys.o cos_sys.o -o cos
+FileBuffer.o : FileBuffer.h FileBuffer.cpp
+	g++ -c FileBuffer.cpp
+FileSys.o : FileSys.cpp FileSys.h FileBuffer.h
+	g++ -c FileSys.cpp
+CosServer.o: CosServer.cpp CosServer.h CommandHandler.h
+	g++ -c CosServer.cpp
+cos : FileBuffer.o FileSys.o  CosServer.o
+	g++ FileBuffer.o FileSys.o CosServer.o -o cos
 
 all : cos
 

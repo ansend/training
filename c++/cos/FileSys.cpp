@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "file_sys.h"
-#include "cos_buffer.h"
+#include "FileSys.h"
+#include "FileBuffer.h"
 #include <string>
 using namespace std;
 AbsFile * AbsFile::pwd = NULL;
 
-#include "cos_sys.h"
+#include "CosServer.h"
 
 void test_dir_file()
 {
@@ -52,8 +52,14 @@ void test_cos_buff()
 
 void test_psam()
 {
+    PsamServer   psam;
+    psam.AddCommandHandler(0x11, &psam, &PsamServer::handle_get_random);
+    
+    std::string test = "hello world";
+    RpcChannel rpc_chl;
+    psam.Process(&rpc_chl, 0x11, test);
 
-    Psam psam;
+    
 
 }
 int main(int argc, char ** argv)
@@ -65,6 +71,7 @@ int main(int argc, char ** argv)
     //test_dir_file();
     
     //test_cos_buff();
+    test_psam();
 }
 
 

@@ -23,7 +23,7 @@ public:
 
     virtual ~CommandHandler() {}
 
-    virtual bool Process(RpcChannel *channel, std::string &buf) {
+    virtual bool Process(RpcChannel *channel, Request &buf) {
 
         // ansen just skip packet codec.  handler do the codec itself.
         
