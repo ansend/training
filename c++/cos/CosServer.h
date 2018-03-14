@@ -18,7 +18,8 @@ class CosServer
         virtual ~CosServer(){;}
 
 
-        bool init(){
+        virtual bool init(){
+            set_random();
             init_filesys();
         }
 
@@ -55,13 +56,17 @@ class CosServer
 
 };
 
-class PsamServer : CosServer
+class PsamServer : public CosServer
 {
     public:
         PsamServer(){;}
         virtual ~PsamServer(){;}
 
 
+        virtual bool init()
+        {
+            CosServer::init();
+        }
         virtual void Process(RpcChannel *channel, uint32_t uri, std::string & buf) {
            while (1) {
                 //uint32_t uri;
@@ -90,8 +95,12 @@ class PsamServer : CosServer
         }
 
         bool handle_get_random(RpcChannel* chl, std::string & buff){
-        
+                   
             printf(" handle get random %s \n", buff.c_str());
+
+            uint32_t ret = random();
+
+            printf(" result of random is : %X \n", ret);
         }
     private:
 

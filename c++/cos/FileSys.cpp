@@ -53,15 +53,20 @@ void test_cos_buff()
 void test_psam()
 {
     PsamServer   psam;
+    psam.init();
     psam.AddCommandHandler(0x11, &psam, &PsamServer::handle_get_random);
     
     std::string test = "hello world";
+
+    uint8_t p_cmd[] = {0x00, 0x84, 0x00, 0x00, 0x04};
+ 
+    std::string s_cmd((char*)p_cmd, sizeof(p_cmd));
+    
     RpcChannel rpc_chl;
     psam.Process(&rpc_chl, 0x11, test);
 
-    
-
 }
+
 int main(int argc, char ** argv)
 {
     printf(" trigger file sys main\n");  
