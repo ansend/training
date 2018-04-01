@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#define max(a,b) a > b ? a : b
+       
 
 int vector[] ={31, -41, 59, 26, -53, 58, 97, -93, -23, 84};
 
@@ -36,7 +38,7 @@ void algrithom1()
 }
 
 
-void algrithom()
+void algrithom2()
 {
 
    printf("sizeof vector is %lu\n", sizeof(vector)/sizeof(int));
@@ -67,9 +69,38 @@ void algrithom()
 
 }
 
+void algrithom4()
+{
+  
+
+   printf("sizeof vector is %lu\n", sizeof(vector)/sizeof(int));
+
+   int num = sizeof(vector) / sizeof(int);
+
+   int maxsofar = 0;
+   int maxendinghere = 0; 
+   int i;
+   for( i =0; i < num; i++)
+   {
+       maxendinghere = max(maxendinghere + vector[i] , 0);
+       maxsofar      = max(maxsofar, maxendinghere);
+	   
+       printf("i, maxsofar, maxendinghere: %d, %d, %d\n", i, maxsofar, maxendinghere);
+   }
+
+   printf(" max sofar is %d \n", maxsofar);
+
+
+
+
+
+}
+
+
+
 int main(int argc, char ** argv)
 {
 
-  algrithom();
+  algrithom4();
 
 }
