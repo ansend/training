@@ -63,7 +63,8 @@ public:
 
     int b_hello()
     {
-        lock(this);
+        //lock(this);
+        hello();// inline function is not impactted by private inherit 
     }
 };  
   
@@ -72,7 +73,7 @@ int main()
     B b;  
     b.b_set_pri(10);
     int age = b.b_get_pri();
-    //b.set_pri_age(12);
+    //b.set_pri_age(12); //error with private inherit.
 
     
     printf(" get age from object %d \n", age);
