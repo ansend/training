@@ -23,7 +23,8 @@ int main (int argc, char** argv)
 	}
 	string str("miss,you.just.call_to,say,I~love~you");
 	vector<string> strVec;
-	boost::split(strVec, tmp4, is_any_of(",."));
+	boost::split(strVec, str, is_any_of(".,"));
+    cout << strVec.size() << endl;
 	vector<string>::iterator it = strVec.begin();
 	for (; it!=strVec.end(); it++){
            cout << "any" << endl;
