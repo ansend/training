@@ -11,8 +11,10 @@
 
 // First, use "lsusb" see vid and pid.  
 // there is my printer(hp deskjet 1010) vid and pid.  
-#define VID 0x03f0  
-#define PID 0xb511  
+//#define VID 0x03f0  
+#define VID 0x1D6B 
+//#define PID 0xb511  
+#define PID 0x0001  
   
 static int device_satus(libusb_device_handle *hd)  
 {  
