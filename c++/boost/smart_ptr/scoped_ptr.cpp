@@ -30,6 +30,13 @@ int main( )
 {
    scoped_ptr<Int> pi ( new Int( 5 ) );
    scoped_ptr<Int> pg ( new Int( 8 ) );
+
+   if (pi)
+   {
+        cout << "pi value is " << pi->x << endl;
+        cout << "pi value is " << (*pi).x << endl;
+        //cout << "pi value is " << *pi.x << endl;
+   }
    pi.reset( new Int( 6 ) );
    cout << "pi is reset to new int 6 " << endl;
    Int* pi2 = pi.get ( );
