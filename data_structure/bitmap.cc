@@ -13,20 +13,20 @@
 
 uint8_t bitmap[MAX_SIZE];
 
-void set_bm(uint32_t bit)
+void set_bm(uint32_t val)
 {
-    printf("the bitmap index is %u \n", bit >> SHIFT);
-    bitmap[bit >> SHIFT] |= uint8_t(1 << (bit & MOD_MASK));
+    //printf("the bitmap index is %u \n", val >> SHIFT);
+    bitmap[val >> SHIFT] |= uint8_t(1 << (val & MOD_MASK));
 }
 
-bool test_bm(uint32_t bit)
+bool test_bm(uint32_t val)
 {
-   return bitmap[bit >> SHIFT] & uint8_t(1<<(bit & MOD_MASK));
+   return bitmap[val >> SHIFT] & uint8_t(1<<(val & MOD_MASK));
 }
 
-void clean_bm(uint32_t bit)
+void clean_bm(uint32_t val) 
 {
-   bitmap[bit >> SHIFT] &= ~uint8_t(1 << (bit & MOD_MASK));
+   bitmap[val >> SHIFT] &= ~uint8_t(1 << (val & MOD_MASK));
 }
 
 

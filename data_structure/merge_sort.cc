@@ -7,8 +7,11 @@ void Merge(int *a, int left, int mid, int right)
 {  
       int n1 = mid-left+1;  
      int n2 = right-mid;  
-     int *L = new int[n1+1];  
-     int *R = new int[n2+1];  
+    // int *L = new int[n1+1];  
+    // int *R = new int[n2+1];  
+     int *L = new int[n1];  
+     int *R = new int[n2];  
+     
      int i, j, k;  
        
      for (i=0; i<n1; i++){  
